@@ -1,0 +1,36 @@
+import json, requests
+
+class CovidProvData:
+    def __init__(self, daily_data):
+        self.active_cases = daily_data["active_cases"]
+        self.daily_cases = daily_data["cases"]
+        self.cumul_avax = daily_data["cumulative_avaccine"]
+        self.cumul_deaths = daily_data["cumulative_deaths"]
+        self.date = daily_data["date"]
+        self.province = daily_data["province"]
+
+def fetch_data(province, before="2099-12-31", after="2020-01-01"):
+    data_list = []
+
+    url = f'https://api.opencovid.ca/summary?loc={province}'
+    before = f'&before={before}' # Get data before date. YYYY-MM-DD.
+    after = f'&after={after}' # Get data after date. YYYY-MM-DD.
+    req = requests.get(url + before + after)
+    
+    raw_data = json.loads(req.text)
+    for item in raw_data["summary"]:
+        data_list.append(CovidProvData(item))
+    return data_list
+
+def graph_data(data_list):
+    num_cases = []
+
+    for item in data_list:
+        num_cases.append(item.daily_cases)
+    print(num_cases)
+def main():
+    graph_data(fetch_data("QC")) 
+
+
+if __name__=='__main__':
+    main()
